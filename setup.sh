@@ -12,7 +12,20 @@ echo "Checking Python version..."
 python_version=$(python3 --version 2>&1 | awk '{print $2}')
 echo "Found Python $python_version"
 
-# Check if venv exists
+# Check if venv exists and is valid
+if [ -d "venv" ]; then
+    # Check if venv is valid
+    if [ ! -f "venv/bin/activate" ]; then
+        echo ""
+        echo "⚠ Incomplete virtual environment found. Removing..."
+        rm -rf venv
+    else
+        echo ""
+        echo "✓ Virtual environment already exists"
+    fi
+fi
+
+# Create venv if it doesn't exist
 if [ ! -d "venv" ]; then
     echo ""
     echo "Creating virtual environment..."
@@ -29,17 +42,33 @@ if [ ! -d "venv" ]; then
         echo "Then run this setup script again."
         exit 1
     fi
-else
-    echo ""
-    echo "✓ Virtual environment already exists"
 fi
 
 # Activate venv and install dependencies
 echo ""
 echo "Installing dependencies..."
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+
+# Check if we can activate venv
+if [ -f "venv/bin/activate" ]; then
+    source venv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    INSTALL_STATUS=$?
+    
+    if [ $INSTALL_STATUS -ne 0 ]; then
+        echo ""
+        echo "⚠ Installation failed!"
+        echo ""
+        echo "If you have Python 3.8, some packages may not be available."
+        echo "Python 3.9+ is recommended for full compatibility."
+        echo ""
+        deactivate 2>/dev/null
+        exit 1
+    fi
+else
+    echo "⚠ Virtual environment activation failed"
+    exit 1
+fi
 
 # Create .env file if it doesn't exist
 if [ ! -f .env ]; then
@@ -56,7 +85,7 @@ fi
 mkdir -p logs
 
 # Deactivate venv for now
-deactivate
+deactivate 2>/dev/null || true
 
 echo ""
 echo "=========================================="
