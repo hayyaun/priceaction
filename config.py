@@ -42,6 +42,11 @@ class Config:
     DRY_RUN = os.getenv('DRY_RUN', 'true').lower() == 'true'
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
     
+    # Telegram Notifications
+    TELEGRAM_ENABLED = os.getenv('TELEGRAM_ENABLED', 'false').lower() == 'true'
+    TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+    TELEGRAM_CHANNEL_ID = os.getenv('TELEGRAM_CHANNEL_ID', '')
+    
     @classmethod
     def validate(cls):
         """Validate configuration"""

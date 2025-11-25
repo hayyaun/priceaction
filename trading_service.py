@@ -10,6 +10,7 @@ import pandas as pd
 from strategy import PriceActionStrategy, Signal
 from exchange import ExchangeConnector
 from config import Config
+from telegram_bot import TelegramNotifier
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,8 @@ class TradingService:
         self,
         exchange: ExchangeConnector,
         strategy: PriceActionStrategy,
-        config: Config
+        config: Config,
+        telegram: Optional[TelegramNotifier] = None
     ):
         """
         Initialize trading service
@@ -36,10 +38,12 @@ class TradingService:
             exchange: Exchange connector
             strategy: Trading strategy
             config: Configuration object
+            telegram: Telegram notifier (optional)
         """
         self.exchange = exchange
         self.strategy = strategy
         self.config = config
+        self.telegram = telegram
         
         # State management
         self.current_position: Optional[Dict] = None
@@ -79,6 +83,10 @@ class TradingService:
             signal, info = self.strategy.generate_signal(df, position_type)
             
             logger.info(f"Signal: {signal.value}, Info: {info}")
+            
+            # Send Telegram notification for signals
+            if self.telegram:
+                self.telegram.notify_signal(signal.value, info)
             
             # Execute trades based on signal
             if signal == Signal.BUY and not self.current_position:
@@ -174,6 +182,11 @@ class TradingService:
                 f"SL: {stop_loss}, TP: {take_profit}"
             )
             
+            # Send Telegram notification
+            if self.telegram:
+                self.telegram.notify_trade('buy', current_price, position_size, 
+                                          stop_loss, take_profit)
+            
         except Exception as e:
             logger.error(f"Failed to execute buy: {e}")
     
@@ -212,6 +225,11 @@ class TradingService:
                 f"Position closed: P&L = {pnl:.2f} USDT ({pnl_percent:.2f}%), "
                 f"Entry: {entry_price}, Exit: {current_price}"
             )
+            
+            # Send Telegram notification
+            if self.telegram:
+                self.telegram.notify_position_closed(entry_price, current_price, 
+                                                    position_size, pnl, pnl_percent)
             
             # Clear position state
             self.current_position = None

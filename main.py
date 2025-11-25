@@ -9,6 +9,7 @@ from config import Config
 from strategy import PriceActionStrategy
 from exchange import ExchangeConnector
 from trading_service import TradingService
+from telegram_bot import TelegramNotifier
 
 
 def setup_logging():
@@ -117,11 +118,22 @@ def main():
             dry_run=Config.DRY_RUN
         )
         
+        # Initialize Telegram notifier
+        telegram = None
+        if Config.TELEGRAM_ENABLED:
+            telegram = TelegramNotifier(
+                bot_token=Config.TELEGRAM_BOT_TOKEN,
+                channel_id=Config.TELEGRAM_CHANNEL_ID,
+                enabled=Config.TELEGRAM_ENABLED
+            )
+            logger.info("Telegram notifications enabled")
+        
         # Initialize trading service
         trading_service = TradingService(
             exchange=exchange,
             strategy=strategy,
-            config=Config
+            config=Config,
+            telegram=telegram
         )
         
         # Calculate check interval based on timeframe
