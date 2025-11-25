@@ -53,7 +53,10 @@ class TelegramNotifier:
             await self.bot.send_message(
                 chat_id=self.channel_id,
                 text=message,
-                parse_mode='HTML'
+                parse_mode='HTML',
+                read_timeout=30,
+                write_timeout=30,
+                connect_timeout=30
             )
             logger.debug("Telegram message sent successfully")
         except TelegramError as e:
