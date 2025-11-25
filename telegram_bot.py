@@ -67,7 +67,7 @@ class TelegramNotifier:
             signal: Signal type (BUY/SELL/HOLD)
             info: Signal information
         """
-        if not self.enabled or signal == 'HOLD':
+        if not self.enabled:
             return
         
         # Format message
@@ -77,6 +77,9 @@ class TelegramNotifier:
         elif signal == 'SELL':
             emoji = "🔴"
             title = "SELL SIGNAL"
+        elif signal == 'HOLD':
+            emoji = "⏸️"
+            title = "HOLD"
         else:
             return
         
