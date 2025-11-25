@@ -32,28 +32,30 @@ class TelegramNotifier:
             self.bot = None
             logger.info("Telegram notifier disabled")
     
-    def send_message(self, message: str):
+    def send_message(self, message: str, silent: bool = False):
         """
         Send message to Telegram channel (sync wrapper)
         
         Args:
             message: Message text
+            silent: Send without notification sound
         """
         if not self.enabled:
             return
         
         try:
-            asyncio.run(self._send_message_async(message))
+            asyncio.run(self._send_message_async(message, silent))
         except Exception as e:
             logger.error(f"Failed to send Telegram message: {e}")
     
-    async def _send_message_async(self, message: str):
+    async def _send_message_async(self, message: str, silent: bool = False):
         """Send message asynchronously"""
         try:
             await self.bot.send_message(
                 chat_id=self.channel_id,
                 text=message,
                 parse_mode='HTML',
+                disable_notification=silent,
                 read_timeout=30,
                 write_timeout=30,
                 connect_timeout=30
@@ -98,7 +100,9 @@ class TelegramNotifier:
 💡 Reason: {info.get('reason', 'N/A')}
 """
         
-        self.send_message(message.strip())
+        # Send HOLD signals silently (muted)
+        silent = (signal == 'HOLD')
+        self.send_message(message.strip(), silent=silent)
     
     def notify_trade(self, action: str, price: float, size: float, 
                      stop_loss: Optional[float] = None, 
