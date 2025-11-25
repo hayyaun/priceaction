@@ -5,7 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: btc-trading-bot
+    image: hotcryptoalerts:latest
+    container_name: hotcryptoalerts
     restart: unless-stopped
     
     # Mount .env file and logs directory

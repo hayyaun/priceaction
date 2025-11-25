@@ -33,7 +33,7 @@ logs:
 
 clean: down
 	@echo ".> Cleaning..."
-	-docker rmi btc-trading-bot:latest
+	-docker rmi hotcryptoalerts:latest
 	@echo "✓ Done"
 
 run:
