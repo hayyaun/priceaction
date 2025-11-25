@@ -90,15 +90,13 @@ def main():
             logger.warning("Running in DRY RUN mode without API keys")
             logger.warning("This will simulate trades without connecting to exchange")
         
-        # Confirm before starting
-        if not Config.DRY_RUN:
+        # Log trading mode
+        if not Config.DRY_RUN and not Config.TESTNET:
             logger.warning("!" * 80)
-            logger.warning("LIVE TRADING MODE - REAL MONEY AT RISK!")
+            logger.warning("MAINNET LIVE TRADING - REAL MONEY AT RISK!")
             logger.warning("!" * 80)
-            response = input("Are you sure you want to continue? (yes/no): ")
-            if response.lower() != 'yes':
-                logger.info("Aborted by user")
-                return
+        elif not Config.DRY_RUN and Config.TESTNET:
+            logger.info("Testnet mode - trading with demo funds")
         
         # Initialize strategy
         strategy = PriceActionStrategy(
