@@ -1,0 +1,8 @@
+ccxt==4.1.70
+python-dotenv==1.0.0
+pandas==2.1.4
+numpy==1.26.2
+ta==0.11.0
+requests==2.31.0
+python-binance==1.0.19
+
