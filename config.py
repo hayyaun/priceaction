@@ -22,7 +22,8 @@ class Config:
     API_SECRET = os.getenv('API_SECRET', '')
     
     # Trading Configuration
-    SYMBOL = os.getenv('SYMBOL', 'BTC/USDT')
+    SYMBOL = os.getenv('SYMBOL', 'BTC/USDT')  # Legacy single symbol support
+    SYMBOLS = os.getenv('SYMBOLS', 'BTC/USDT,ETH/USDT,BNB/USDT,XRP/USDT,SOL/USDT,DOGE/USDT,ADA/USDT,DOT/USDT').split(',')
     TIMEFRAME = os.getenv('TIMEFRAME', '15m')
     
     # Risk Management

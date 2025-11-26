@@ -86,6 +86,8 @@ class TelegramNotifier:
             return
         
         # Format message
+        symbol = info.get('symbol', 'BTC/USDT')
+        
         if signal == 'BUY':
             emoji = "🟢"
             title = "BUY SIGNAL"
@@ -99,7 +101,7 @@ class TelegramNotifier:
             return
         
         message = f"""
-{emoji} <b>{title}</b>
+{emoji} <b>{title} - {symbol}</b>
 
 💰 Price: ${info.get('price', 0):,.2f}
 📊 EMA Fast: ${info.get('ema_fast', 0):,.2f}
@@ -116,7 +118,8 @@ class TelegramNotifier:
     
     def notify_trade(self, action: str, price: float, size: float, 
                      stop_loss: Optional[float] = None, 
-                     take_profit: Optional[float] = None):
+                     take_profit: Optional[float] = None,
+                     symbol: str = 'BTC/USDT'):
         """
         Send trade execution notification
         
@@ -126,6 +129,7 @@ class TelegramNotifier:
             size: Position size
             stop_loss: Stop loss price
             take_profit: Take profit price
+            symbol: Trading pair symbol
         """
         if not self.enabled:
             return
@@ -137,11 +141,13 @@ class TelegramNotifier:
             emoji = "❌"
             title = "TRADE EXECUTED - SELL"
         
+        base_currency = symbol.split('/')[0]
+        
         message = f"""
-{emoji} <b>{title}</b>
+{emoji} <b>{title} - {symbol}</b>
 
 💰 Price: ${price:,.2f}
-📦 Size: {size:.6f} BTC
+📦 Size: {size:.6f} {base_currency}
 💵 Value: ${price * size:,.2f}
 """
         
@@ -154,7 +160,8 @@ class TelegramNotifier:
         self.send_message(message.strip())
     
     def notify_position_closed(self, entry_price: float, exit_price: float, 
-                               size: float, pnl: float, pnl_percent: float):
+                               size: float, pnl: float, pnl_percent: float,
+                               symbol: str = 'BTC/USDT'):
         """
         Send position closed notification
         
@@ -164,6 +171,7 @@ class TelegramNotifier:
             size: Position size
             pnl: Profit/Loss in USDT
             pnl_percent: P&L percentage
+            symbol: Trading pair symbol
         """
         if not self.enabled:
             return
@@ -175,12 +183,14 @@ class TelegramNotifier:
             emoji = "📉"
             status = "LOSS"
         
+        base_currency = symbol.split('/')[0]
+        
         message = f"""
-{emoji} <b>POSITION CLOSED - {status}</b>
+{emoji} <b>POSITION CLOSED - {status} - {symbol}</b>
 
 📥 Entry: ${entry_price:,.2f}
 📤 Exit: ${exit_price:,.2f}
-📦 Size: {size:.6f} BTC
+📦 Size: {size:.6f} {base_currency}
 
 💵 P&L: ${pnl:,.2f} ({pnl_percent:+.2f}%)
 """

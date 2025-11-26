@@ -9,6 +9,7 @@ from config import Config
 from strategy import PriceActionStrategy
 from exchange import ExchangeConnector
 from trading_service import TradingService
+from multi_pair_trading_service import MultiPairTradingService
 from telegram_bot import TelegramNotifier
 
 
@@ -70,6 +71,10 @@ def print_configuration():
     logger.info(f"  RSI Period: {Config.RSI_PERIOD}")
     logger.info(f"  RSI Oversold: {Config.RSI_OVERSOLD}")
     logger.info(f"  RSI Overbought: {Config.RSI_OVERBOUGHT}")
+    logger.info("-" * 80)
+    logger.info("Trading Pairs:")
+    for symbol in Config.SYMBOLS:
+        logger.info(f"  - {symbol}")
     logger.info("=" * 80)
 
 
@@ -98,14 +103,14 @@ def main():
         elif not Config.DRY_RUN and Config.TESTNET:
             logger.info("Testnet mode - trading with demo funds")
         
-        # Initialize strategy
-        strategy = PriceActionStrategy(
-            ema_fast=Config.EMA_FAST,
-            ema_slow=Config.EMA_SLOW,
-            rsi_period=Config.RSI_PERIOD,
-            rsi_overbought=Config.RSI_OVERBOUGHT,
-            rsi_oversold=Config.RSI_OVERSOLD
-        )
+        # Strategy parameters
+        strategy_params = {
+            'ema_fast': Config.EMA_FAST,
+            'ema_slow': Config.EMA_SLOW,
+            'rsi_period': Config.RSI_PERIOD,
+            'rsi_overbought': Config.RSI_OVERBOUGHT,
+            'rsi_oversold': Config.RSI_OVERSOLD
+        }
         
         # Initialize exchange connector
         exchange = ExchangeConnector(
@@ -126,11 +131,12 @@ def main():
             )
             logger.info("Telegram notifications enabled")
         
-        # Initialize trading service
-        trading_service = TradingService(
+        # Initialize multi-pair trading service
+        trading_service = MultiPairTradingService(
             exchange=exchange,
-            strategy=strategy,
+            strategy_params=strategy_params,
             config=Config,
+            symbols=Config.SYMBOLS,
             telegram=telegram
         )
         

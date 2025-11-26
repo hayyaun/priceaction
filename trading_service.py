@@ -84,8 +84,8 @@ class TradingService:
             
             logger.info(f"Signal: {signal.value}, Info: {info}")
             
-            # Send Telegram notification for signals
-            if self.telegram:
+            # Send Telegram notification for BUY/SELL signals only (skip HOLD to avoid spam)
+            if self.telegram and signal != Signal.HOLD:
                 self.telegram.notify_signal(signal.value, info)
             
             # Execute trades based on signal
@@ -185,7 +185,7 @@ class TradingService:
             # Send Telegram notification
             if self.telegram:
                 self.telegram.notify_trade('buy', current_price, position_size, 
-                                          stop_loss, take_profit)
+                                          stop_loss, take_profit, symbol=self.config.SYMBOL)
             
         except Exception as e:
             logger.error(f"Failed to execute buy: {e}")
@@ -229,7 +229,7 @@ class TradingService:
             # Send Telegram notification
             if self.telegram:
                 self.telegram.notify_position_closed(entry_price, current_price, 
-                                                    position_size, pnl, pnl_percent)
+                                                    position_size, pnl, pnl_percent, symbol=self.config.SYMBOL)
             
             # Clear position state
             self.current_position = None
